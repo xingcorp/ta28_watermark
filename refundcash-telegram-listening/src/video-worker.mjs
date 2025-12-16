@@ -24,9 +24,7 @@ if (!fs.existsSync(mediaDir)) {
 
 // Redis connection configuration
 const redisConnection = {
-  url:
-    process.env.REDIS_URL ||
-    "redis://default:wvAKmgAAdSKPzrByT9vp@161.97.132.49:6379/1",
+  url: process.env.REDIS_URL || "redis://redis:6379/1",
 };
 
 // Video overlay function with configurable parameters and positioning

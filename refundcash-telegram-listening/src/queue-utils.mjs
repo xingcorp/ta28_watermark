@@ -4,9 +4,10 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // Redis connection configuration
-console.log(process.env.REDIS_URL);
+const redisUrl = process.env.REDIS_URL || "redis://redis:6379/1";
+console.log("BullMQ using Redis URL:", redisUrl);
 const redisConnection = {
-  url: process.env.REDIS_URL,
+  url: redisUrl,
 };
 
 // Get environment suffix for queue names

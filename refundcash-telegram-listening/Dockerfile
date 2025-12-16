@@ -3,7 +3,12 @@ FROM node:20-bullseye-slim
 
 WORKDIR /app
 
-# Cài dependency
+# Cài system dependency cho xử lý media (ffmpeg bao gồm cả ffprobe)
+RUN apt-get update \
+    && apt-get install -y ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Cài dependency Node.js
 COPY package.json package-lock.json ./
 RUN npm ci
 

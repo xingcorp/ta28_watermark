@@ -329,31 +329,6 @@ export class ImageUploadService {
         result.processedImages = combinedProcessed;
       }
 
-      // Convert relative URLs to absolute URLs
-      if (result.processedImages && Array.isArray(result.processedImages)) {
-        result.processedImages = result.processedImages.map((img: unknown) => {
-          const imgData = img as Record<string, unknown>;
-          return {
-            ...imgData,
-            processedImageUrl: typeof imgData.processedImageUrl === 'string'
-              ? this.convertToAbsoluteUrl(imgData.processedImageUrl)
-              : imgData.processedImageUrl,
-            thumbnailUrl: typeof imgData.thumbnailUrl === 'string'
-              ? this.convertToAbsoluteUrl(imgData.thumbnailUrl)
-              : imgData.thumbnailUrl,
-            fullImageUrl: typeof imgData.fullImageUrl === 'string'
-              ? this.convertToAbsoluteUrl(imgData.fullImageUrl)
-              : imgData.fullImageUrl,
-            processedVideoUrl: typeof imgData.processedVideoUrl === 'string'
-              ? this.convertToAbsoluteUrl(imgData.processedVideoUrl)
-              : imgData.processedVideoUrl,
-            fullVideoUrl: typeof imgData.fullVideoUrl === 'string'
-              ? this.convertToAbsoluteUrl(imgData.fullVideoUrl)
-              : imgData.fullVideoUrl,
-          };
-        });
-      }
-
       return {
         jobId: result.jobId || result.job_id || jobId,
         status: result.status || "pending",

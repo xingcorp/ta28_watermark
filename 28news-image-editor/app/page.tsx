@@ -1091,6 +1091,7 @@ export default function ImageLogoProcessor() {
                                 width={400}
                                 height={256}
                                 className="w-full h-64 object-cover"
+                                unoptimized
                               />
                               {/* Video play overlay */}
                               <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
@@ -1106,6 +1107,7 @@ export default function ImageLogoProcessor() {
                               width={400}
                               height={256}
                               className="w-full h-64 object-cover"
+                              unoptimized
                             />
                           )
                         ) : (

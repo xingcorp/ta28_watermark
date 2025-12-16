@@ -297,8 +297,9 @@ async function addLogoToImage(
 // Note: Image processing functions moved to image-worker.mjs
 
 // Initialize Redis client
+const redisUrl = process.env.REDIS_URL || "redis://redis:6379/1";
 const redis = createClient({
-  url: "redis://default:wvAKmgAAdSKPzrByT9vp@161.97.132.49:6379/1",
+  url: redisUrl,
 });
 
 await redis.connect();

@@ -8,9 +8,26 @@ export async function GET(request: NextRequest) {
     if (!imageUrl) {
       return NextResponse.json({ error: 'Image URL is required' }, { status: 400 });
     }
+    // Normalize URL: support both absolute URLs and relative paths like /processed/...
+    let targetUrl: string;
+    try {
+      if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+        // Absolute URL: use as-is (allows future use with external CDNs)
+        targetUrl = new URL(imageUrl).toString();
+      } else {
+        // Relative path: fetch directly from backend service inside Docker network
+        const backendBase = process.env.BACKEND_BASE_URL || 'http://backend:3000';
+        console.log('download-image: resolving relative URL', { imageUrl, backendBase });
+        targetUrl = new URL(imageUrl, backendBase).toString();
+      }
+    } catch (e) {
+      console.error('Invalid image URL provided to download-image route:', imageUrl, e);
+      return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 });
+    }
 
-    // Fetch the image from the backend
-    const response = await fetch(imageUrl);
+    // Fetch the image from the resolved URL
+    console.log('download-image: fetching', targetUrl);
+    const response = await fetch(targetUrl);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.status}`);
