@@ -1,0 +1,76 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  backend:
+    build:
+      context: ./refundcash-telegram-listening
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./refundcash-telegram-listening/.env
+    volumes:
+      - media-temp:/app/media_temp
+      - processed-media:/app/processed
+      - temp-uploads:/app/temp_uploads
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+
+  image-worker:
+    build:
+      context: ./refundcash-telegram-listening
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./refundcash-telegram-listening/.env
+    volumes:
+      - media-temp:/app/media_temp
+      - processed-media:/app/processed
+      - temp-uploads:/app/temp_uploads
+    depends_on:
+      - redis
+    command: ["node", "src/image-worker.mjs"]
+
+  video-worker:
+    build:
+      context: ./refundcash-telegram-listening
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./refundcash-telegram-listening/.env
+    volumes:
+      - media-temp:/app/media_temp
+      - processed-media:/app/processed
+      - temp-uploads:/app/temp_uploads
+    depends_on:
+      - redis
+    command: ["node", "src/video-worker.mjs"]
+
+  frontend:
+    build:
+      context: ./28news-image-editor
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./28news-image-editor/.env.production
+    # URL backend để Next API routes gọi sang (server-side)
+    # BULLMQ_QUEUE_SUFFIX dùng để khớp tên queue với backend (production)
+    # Lưu ý: các biến NEXT_PUBLIC_* (ví dụ NEXT_PUBLIC_API_BASE_URL)
+    # nên được cấu hình trong file .env.production của frontend
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+
+volumes:
+  redis-data:
+  media-temp:
+  processed-media:
+  temp-uploads:

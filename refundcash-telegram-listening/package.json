@@ -1,0 +1,33 @@
+{
+	"scripts": {
+		"cleanup": "rm -rf media_temp/* processed/* temp_uploads/*",
+		"cleanup:media": "rm -rf media_temp/*",
+		"cleanup:processed": "rm -rf processed/*",
+		"cleanup:temp": "rm -rf temp_uploads/*"
+	},
+	"dependencies": {
+		"@ai-sdk/deepseek": "^0.1.8",
+		"@ai-sdk/openai": "^1.1.9",
+		"ai": "^4.1.24",
+		"big-integer": "^1.6.52",
+		"bullmq": "^5.58.0",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.5",
+		"express": "^4.18.2",
+		"ffmpeg-static": "^5.2.0",
+		"fluent-ffmpeg": "^2.1.3",
+		"form-data": "^4.0.4",
+		"formidable": "^3.5.4",
+		"lodash": "^4.17.21",
+		"multer": "^2.0.2",
+		"node-fetch": "^3.3.2",
+		"redis": "^4.7.0",
+		"sharp": "^0.34.3",
+		"telegraf": "^4.16.3",
+		"telegram": "^2.23.10",
+		"uuid": "^11.1.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.2.0"
+	}
+}

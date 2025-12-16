@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>28News Batch Image Processing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .upload-form {
+            margin: 20px 0;
+        }
+        .file-input {
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .config-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .config-group {
+            margin: 15px 0;
+        }
+        .config-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .config-group select, .config-group input[type="file"], .config-group input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .range-value {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .processing {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            transition: width 0.3s ease;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .image-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+        .image-item img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 3px;
+        }
+        .image-status {
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .status-completed { color: #28a745; }
+        .status-failed { color: #dc3545; }
+        .status-processing { color: #ffc107; }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 28News Batch Image Processing</h1>
+        
+        <form class="upload-form" id="batchForm">
+            <div class="file-input">
+                <label for="imageFiles">Select multiple images:</label><br>
+                <input type="file" id="imageFiles" name="images" accept="image/*" multiple required>
+            </div>
+            
+            <div class="config-section">
+                <h3>Logo Configuration</h3>
+                
+                <div class="config-group">
+                    <label for="logoFile">Custom Logo (optional):</label>
+                    <input type="file" id="logoFile" name="logo" accept="image/*">
+                    <small>Leave empty to use default 28news logo</small>
+                </div>
+                
+                <div class="config-group">
+                    <label for="logoPosition">Logo Position:</label>
+                    <select id="logoPosition" name="logoPosition">
+                        <option value="bottom-right">Bottom Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="top-right">Top Right</option>
+                        <option value="top-left">Top Left</option>
+                        <option value="center">Center</option>
+                    </select>
+                </div>
+                
+                <div class="config-group">
+                    <label for="logoSize">Logo Size: <span class="range-value" id="logoSizeValue">15%</span></label>
+                    <input type="range" id="logoSize" name="logoSize" min="5" max="100" value="15">
+                </div>
+                
+                <div class="config-group">
+                    <label for="logoOpacity">Logo Opacity: <span class="range-value" id="logoOpacityValue">80%</span></label>
+                    <input type="range" id="logoOpacity" name="logoOpacity" min="10" max="100" value="80">
+                </div>
+                
+                <div class="config-group">
+                    <label for="padding">Padding: <span class="range-value" id="paddingValue">80px</span></label>
+                    <input type="range" id="padding" name="padding" min="20" max="200" value="80">
+                </div>
+            </div>
+            
+            <button type="submit" id="submitBtn">Start Batch Processing</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let currentJobId = null;
+        let pollingInterval = null;
+
+        // Update range value displays
+        document.getElementById('logoSize').addEventListener('input', function() {
+            document.getElementById('logoSizeValue').textContent = this.value + '%';
+        });
+        
+        document.getElementById('logoOpacity').addEventListener('input', function() {
+            document.getElementById('logoOpacityValue').textContent = this.value + '%';
+        });
+        
+        document.getElementById('padding').addEventListener('input', function() {
+            document.getElementById('paddingValue').textContent = this.value + 'px';
+        });
+
+        // Submit batch job
+        document.getElementById('batchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const imageFiles = document.getElementById('imageFiles').files;
+            const logoFile = document.getElementById('logoFile').files[0];
+            const logoPosition = document.getElementById('logoPosition').value;
+            const logoSize = document.getElementById('logoSize').value;
+            const logoOpacity = document.getElementById('logoOpacity').value;
+            const padding = document.getElementById('padding').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            
+            if (imageFiles.length === 0) {
+                resultDiv.innerHTML = '<div class="result error">Please select at least one image.</div>';
+                return;
+            }
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            resultDiv.innerHTML = '<div class="result processing">Submitting batch job...</div>';
+            
+            try {
+                const formData = new FormData();
+                
+                // Add all images
+                for (let i = 0; i < imageFiles.length; i++) {
+                    formData.append('images', imageFiles[i]);
+                }
+                
+                // Add logo if provided
+                if (logoFile) {
+                    formData.append('logo', logoFile);
+                }
+                
+                // Add configuration
+                formData.append('logoPosition', logoPosition);
+                formData.append('logoSize', logoSize);
+                formData.append('logoOpacity', logoOpacity);
+                formData.append('padding', padding);
+                
+                const response = await fetch('/submit-batch-job', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentJobId = data.jobId;
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ Batch job submitted successfully!</h3>
+                            <p><strong>Job ID:</strong> ${data.jobId}</p>
+                            <p><strong>Images:</strong> ${imageFiles.length}</p>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                        </div>
+                    `;
+                    
+                    // Start polling for status
+                    startPolling(data.jobId);
+                    
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ Job submission failed</h3>
+                            <p><strong>Error:</strong> ${data.error}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Network error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Start Batch Processing';
+            }
+        });
+
+        // Start polling for job status
+        function startPolling(jobId) {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+            
+            pollingInterval = setInterval(() => {
+                checkJobStatus(jobId);
+            }, 2000); // Poll every 2 seconds
+            
+            // Check immediately
+            checkJobStatus(jobId);
+        }
+
+        // Check job status
+        async function checkJobStatus(jobId) {
+            try {
+                const response = await fetch(`/job-status/${jobId}`);
+                const data = await response.json();
+                
+                updateJobStatus(data);
+                
+                // Stop polling if job is completed or failed
+                if (data.status === 'completed' || data.status === 'failed') {
+                    if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                        pollingInterval = null;
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error checking job status:', error);
+            }
+        }
+
+        // Update job status display
+        function updateJobStatus(data) {
+            const resultDiv = document.getElementById('result');
+            
+            let statusClass = 'processing';
+            let statusIcon = '⏳';
+            
+            if (data.status === 'completed') {
+                statusClass = 'success';
+                statusIcon = '✅';
+            } else if (data.status === 'failed') {
+                statusClass = 'error';
+                statusIcon = '❌';
+            }
+            
+            let html = `
+                <div class="result ${statusClass}">
+                    <h3>${statusIcon} Job Status: ${data.status.toUpperCase()}</h3>
+                    <p><strong>Job ID:</strong> ${data.jobId}</p>
+                    <p><strong>Progress:</strong> ${data.completedImages}/${data.totalImages} images (${data.progress}%)</p>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${data.progress}%"></div>
+                    </div>
+            `;
+            
+            if (data.error) {
+                html += `<p><strong>Error:</strong> ${data.error}</p>`;
+            }
+            
+            if (data.processedImages && data.processedImages.length > 0) {
+                html += '<h4>Processed Images:</h4><div class="image-grid">';
+                
+                data.processedImages.forEach(image => {
+                    let statusClass = 'status-processing';
+                    let statusText = 'Processing';
+                    
+                    if (image.status === 'completed') {
+                        statusClass = 'status-completed';
+                        statusText = 'Completed';
+                    } else if (image.status === 'failed') {
+                        statusClass = 'status-failed';
+                        statusText = 'Failed';
+                    }
+                    
+                    html += `
+                        <div class="image-item">
+                            ${image.processedImageUrl ? 
+                                `<img src="${image.processedImageUrl}" alt="${image.originalName}">` : 
+                                '<div style="height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">No Image</div>'
+                            }
+                            <div><strong>${image.originalName}</strong></div>
+                            <div class="image-status ${statusClass}">${statusText}</div>
+                            ${image.error ? `<div style="color: red; font-size: 12px;">${image.error}</div>` : ''}
+                            ${image.processedImageUrl ? 
+                                `<a href="${image.processedImageUrl}" class="download-btn" download>Download</a>` : 
+                                ''
+                            }
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            resultDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
