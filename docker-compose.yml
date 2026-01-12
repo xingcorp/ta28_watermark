@@ -65,11 +65,7 @@ services:
     # Lưu ý: các biến NEXT_PUBLIC_* (ví dụ NEXT_PUBLIC_API_BASE_URL)
     # nên được cấu hình trong file .env.production của frontend
     ports:
-<<<<<<< HEAD
-      - "3101:3101"
-=======
       - "127.0.0.1:3003:3001"
->>>>>>> 2a44813 (Fix processed media handling and downloads for ta28_watermark)
     depends_on:
       - backend
 
