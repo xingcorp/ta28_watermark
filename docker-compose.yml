@@ -19,7 +19,7 @@ services:
       - processed-media:/app/processed
       - temp-uploads:/app/temp_uploads
     ports:
-      - "3000:3000"
+      - "3100:3100"
     depends_on:
       - redis
 
@@ -65,7 +65,7 @@ services:
     # Lưu ý: các biến NEXT_PUBLIC_* (ví dụ NEXT_PUBLIC_API_BASE_URL)
     # nên được cấu hình trong file .env.production của frontend
     ports:
-      - "3001:3001"
+      - "3101:3101"
     depends_on:
       - backend
 

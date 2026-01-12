@@ -180,12 +180,17 @@ async function addLogoToImage(
     const {
       logoSize = 15, // percentage of image width (5-100)
       logoOpacity = 100, // opacity percentage (10-100)
-      padding = 20, // padding in pixels (20-200)
+      paddingPercent = 0,
+      paddingXPercent = paddingPercent,
+      paddingYPercent = paddingPercent,
       logoPosition = "bottom-right", // position: top-left, top-right, bottom-left, bottom-right, center
     } = options;
 
     const image = sharp(imageBuffer);
     const metadata = await image.metadata();
+
+    const paddingX = Math.max(0, Math.round(metadata.width * (paddingXPercent / 100)));
+    const paddingY = Math.max(0, Math.round(metadata.height * (paddingYPercent / 100)));
 
     // Calculate logo size based on percentage
     const logoPixelSize = Math.floor(
@@ -229,20 +234,20 @@ async function addLogoToImage(
     let top, left;
     switch (logoPosition) {
       case "top-left":
-        top = padding;
-        left = padding;
+        top = paddingY;
+        left = paddingX;
         break;
       case "top-right":
-        top = padding;
-        left = metadata.width - logoWidth - padding;
+        top = paddingY;
+        left = metadata.width - logoWidth - paddingX;
         break;
       case "bottom-left":
-        top = metadata.height - logoHeight - padding;
-        left = padding;
+        top = metadata.height - logoHeight - paddingY;
+        left = paddingX;
         break;
       case "bottom-right":
-        top = metadata.height - logoHeight - padding;
-        left = metadata.width - logoWidth - padding;
+        top = metadata.height - logoHeight - paddingY;
+        left = metadata.width - logoWidth - paddingX;
         break;
       case "center":
         top = Math.floor((metadata.height - logoHeight) / 2);
@@ -250,8 +255,8 @@ async function addLogoToImage(
         break;
       default:
         // Default to bottom-right
-        top = metadata.height - logoHeight - padding;
-        left = metadata.width - logoWidth - padding;
+        top = metadata.height - logoHeight - paddingY;
+        left = metadata.width - logoWidth - paddingX;
     }
 
     // Position logo with calculated coordinates
@@ -430,7 +435,12 @@ app.post("/submit-batch-job", async (req, res) => {
     const logoPosition = (fields.logoPosition?.[0] || "bottom-right").toString();
     const logoSize = parseInt(fields.logoSize?.[0] || "15");
     const logoOpacity = parseInt(fields.logoOpacity?.[0] || "80");
-    const padding = parseInt(fields.padding?.[0] || "80");
+
+    const paddingPercentFallback = fields.paddingPercent?.[0];
+    const paddingXPercentRaw = fields.paddingXPercent?.[0] ?? paddingPercentFallback;
+    const paddingYPercentRaw = fields.paddingYPercent?.[0] ?? paddingPercentFallback;
+    const paddingXPercent = paddingXPercentRaw !== undefined ? Number(paddingXPercentRaw) : 0;
+    const paddingYPercent = paddingYPercentRaw !== undefined ? Number(paddingYPercentRaw) : 0;
 
     // Validation
     const validPositions = ["top-left", "top-right", "bottom-left", "bottom-right", "center"];
@@ -458,11 +468,18 @@ app.post("/submit-batch-job", async (req, res) => {
       });
     }
 
-    if (padding < 20 || padding > 200) {
+    if (
+      Number.isNaN(paddingXPercent) ||
+      Number.isNaN(paddingYPercent) ||
+      paddingXPercent < 0 ||
+      paddingXPercent > 20 ||
+      paddingYPercent < 0 ||
+      paddingYPercent > 20
+    ) {
       return res.status(400).json({
         success: false,
         jobId: "",
-        error: "Padding must be between 20 and 200 pixels",
+        error: "Padding must be between 0 and 20 percent",
       });
     }
 
@@ -509,7 +526,8 @@ app.post("/submit-batch-job", async (req, res) => {
         options: {
           logoSize,
           logoOpacity,
-          padding,
+          paddingXPercent,
+          paddingYPercent,
           logoPosition,
         },
         customLogoPath: logoFile ? logoFile.path : null,
@@ -531,7 +549,8 @@ app.post("/submit-batch-job", async (req, res) => {
         options: {
           logoSize: logoSize,
           logoOpacity: logoOpacity / 100, // Convert to 0-1 range for FFmpeg
-          padding,
+          paddingXPercent,
+          paddingYPercent,
           logoPosition,
         },
         customLogoPath: logoFile ? logoFile.path : null,
@@ -943,8 +962,23 @@ app.post("/upload-media", async (req, res) => {
     const logoType = fields.logoType?.[0] || "default";
     const logoSize = Math.max(5, Math.min(100, parseInt(fields.logoSize?.[0] || "15")));
     const logoOpacity = Math.max(10, Math.min(100, parseInt(fields.logoOpacity?.[0] || "100")));
-    const padding = Math.max(20, Math.min(200, parseInt(fields.padding?.[0] || "20")));
+    const paddingPercentFallback = fields.paddingPercent?.[0];
+    const paddingXPercentRaw = fields.paddingXPercent?.[0] ?? paddingPercentFallback;
+    const paddingYPercentRaw = fields.paddingYPercent?.[0] ?? paddingPercentFallback;
+    const paddingXPercent = paddingXPercentRaw !== undefined ? Number(paddingXPercentRaw) : 0;
+    const paddingYPercent = paddingYPercentRaw !== undefined ? Number(paddingYPercentRaw) : 0;
     const logoPosition = fields.logoPosition?.[0] || "bottom-right";
+
+    if (
+      Number.isNaN(paddingXPercent) ||
+      Number.isNaN(paddingYPercent) ||
+      paddingXPercent < 0 ||
+      paddingXPercent > 20 ||
+      paddingYPercent < 0 ||
+      paddingYPercent > 20
+    ) {
+      return res.status(400).json({ error: "Padding must be between 0 and 20 percent" });
+    }
 
     // Update progress to processing - maintain upload progress data
     const currentUploadProgress = uploadProgress.get(uploadId) || { received: 0, total: 0, progress: 0 };
@@ -1001,7 +1035,8 @@ app.post("/upload-media", async (req, res) => {
         options: {
           logoSize,
           logoOpacity: logoOpacity / 100, // Convert to 0-1 range for FFmpeg
-          padding,
+          paddingXPercent,
+          paddingYPercent,
           logoPosition,
         },
         customLogoPath: logoType === "custom" && customLogo ? customLogo.filepath : null,
@@ -1025,7 +1060,8 @@ app.post("/upload-media", async (req, res) => {
           logoType,
           logoSize,
           logoOpacity,
-          padding,
+          paddingXPercent,
+          paddingYPercent,
           logoPosition,
         },
       };
@@ -1081,7 +1117,8 @@ app.post("/upload-media", async (req, res) => {
         {
           logoSize,
           logoOpacity,
-          padding,
+          paddingXPercent,
+          paddingYPercent,
           logoPosition,
         }
       );
@@ -1122,7 +1159,8 @@ app.post("/upload-media", async (req, res) => {
           logoType,
           logoSize,
           logoOpacity,
-          padding,
+          paddingXPercent,
+          paddingYPercent,
           logoPosition,
         },
       };

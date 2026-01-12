@@ -46,7 +46,8 @@ export default function ImageLogoProcessor() {
   const [logoPosition, setLogoPosition] = useState("bottom-right");
   const [logoSize, setLogoSize] = useState([15]);
   const [logoOpacity, setLogoOpacity] = useState([80]);
-  const [padding, setPadding] = useState([8]); // Default 5% padding
+  const [paddingX, setPaddingX] = useState([8]); // Default 5% padding
+  const [paddingY, setPaddingY] = useState([8]); // Default 5% padding
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [processedImages, setProcessedImages] = useState<ProcessedImage[]>([]);
@@ -329,7 +330,8 @@ export default function ImageLogoProcessor() {
           logoPosition,
           logoSize[0],
           logoOpacity[0],
-          padding[0], // Using padding as percentage value (0-20%) for responsive padding
+          paddingX[0],
+          paddingY[0],
           (progress: ProgressCallback) => {
             setUploadProgress(progress.progress);
             if (progress.uploadedBytes) {
@@ -352,7 +354,8 @@ export default function ImageLogoProcessor() {
           logoPosition,
           logoSize[0],
           logoOpacity[0],
-          padding[0],
+          paddingX[0],
+          paddingY[0],
           (progress: ProgressCallback) => {
             setUploadProgress(progress.progress);
             if (progress.uploadedBytes) {
@@ -476,7 +479,8 @@ export default function ImageLogoProcessor() {
     logoPosition,
     logoSize,
     logoOpacity,
-    padding,
+    paddingX,
+    paddingY,
   ]);
 
   const downloadImage = async (processedImage: ProcessedImage) => {
@@ -776,11 +780,24 @@ export default function ImageLogoProcessor() {
               {/* Padding */}
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-3 block">
-                  Padding: {padding[0]}%
+                  Padding X: {paddingX[0]}%
                 </label>
                 <Slider
-                  value={padding}
-                  onValueChange={setPadding}
+                  value={paddingX}
+                  onValueChange={setPaddingX}
+                  max={20}
+                  min={0}
+                  step={0.5}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-3 block">
+                  Padding Y: {paddingY[0]}%
+                </label>
+                <Slider
+                  value={paddingY}
+                  onValueChange={setPaddingY}
                   max={20}
                   min={0}
                   step={0.5}

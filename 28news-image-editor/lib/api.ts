@@ -4,7 +4,8 @@ export interface UploadImageRequest {
   logoPosition: string;
   logoSize: number;
   logoOpacity: number;
-  paddingPercent: number; // Percentage value (0-20%) - responsive padding based on image width
+  paddingXPercent: number; // Percentage value (0-20%) - responsive padding based on image width
+  paddingYPercent: number; // Percentage value (0-20%) - responsive padding based on image height
 }
 
 export interface BatchJobRequest {
@@ -13,7 +14,8 @@ export interface BatchJobRequest {
   logoPosition: string;
   logoSize: number;
   logoOpacity: number;
-  paddingPercent: number; // Percentage value (0-20%) - responsive padding based on image width
+  paddingXPercent: number; // Percentage value (0-20%) - responsive padding based on image width
+  paddingYPercent: number; // Percentage value (0-20%) - responsive padding based on image height
 }
 
 export interface UploadImageResponse {
@@ -93,7 +95,8 @@ export class ImageUploadService {
     logoPosition: string,
     logoSize: number,
     logoOpacity: number,
-    paddingPercent: number,
+    paddingXPercent: number,
+    paddingYPercent: number,
     onProgress?: (progress: ProgressCallback) => void
   ): Promise<EnhancedJobResponse> {
     try {
@@ -163,7 +166,8 @@ export class ImageUploadService {
       formData.append("logoPosition", logoPosition);
       formData.append("logoSize", logoSize.toString());
       formData.append("logoOpacity", logoOpacity.toString());
-      formData.append("paddingPercent", paddingPercent.toString());
+      formData.append("paddingXPercent", paddingXPercent.toString());
+      formData.append("paddingYPercent", paddingYPercent.toString());
 
       if (process.env.NODE_ENV === 'development') {
         console.log('Submitting batch job with files:', mediaFiles.map(f => f.name));

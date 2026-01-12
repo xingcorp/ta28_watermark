@@ -36,7 +36,9 @@ async function addLogoToVideo(videoPath, logoPath, outputPath, options = {}) {
       const {
         logoSize = 15, // percentage of video width (5-100)
         logoOpacity = 0.8, // opacity (0.1-1.0)
-        padding = 20, // padding in pixels
+        paddingPercent = 0,
+        paddingXPercent = paddingPercent,
+        paddingYPercent = paddingPercent,
         logoPosition = "bottom-right", // position: top-left, top-right, bottom-left, bottom-right, center
         duration = null, // if specified, trim video to this duration in seconds
       } = options;
@@ -73,25 +75,28 @@ async function addLogoToVideo(videoPath, logoPath, outputPath, options = {}) {
         // Calculate logo size and position
         const logoPixelSize = Math.floor(videoWidth * (logoSize / 100));
 
+        const paddingX = Math.max(0, Math.round(videoWidth * (paddingXPercent / 100)));
+        const paddingY = Math.max(0, Math.round(videoHeight * (paddingYPercent / 100)));
+
         let overlayPosition;
         switch (logoPosition) {
           case "top-left":
-            overlayPosition = `${padding}:${padding}`;
+            overlayPosition = `${paddingX}:${paddingY}`;
             break;
           case "top-right":
-            overlayPosition = `W-w-${padding}:${padding}`;
+            overlayPosition = `W-w-${paddingX}:${paddingY}`;
             break;
           case "bottom-left":
-            overlayPosition = `${padding}:H-h-${padding}`;
+            overlayPosition = `${paddingX}:H-h-${paddingY}`;
             break;
           case "bottom-right":
-            overlayPosition = `W-w-${padding}:H-h-${padding}`;
+            overlayPosition = `W-w-${paddingX}:H-h-${paddingY}`;
             break;
           case "center":
             overlayPosition = `(W-w)/2:(H-h)/2`;
             break;
           default:
-            overlayPosition = `W-w-${padding}:H-h-${padding}`;
+            overlayPosition = `W-w-${paddingX}:H-h-${paddingY}`;
         }
 
         // Create FFmpeg command

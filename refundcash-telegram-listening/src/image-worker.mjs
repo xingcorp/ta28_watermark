@@ -36,7 +36,9 @@ async function addLogoToImage(
     const {
       logoSize = 10, // Default scale factor as percentage (1-20)
       logoOpacity = 100, // opacity percentage (10-100)
-      paddingPercent = 3, // padding as percentage of image width (1-10)
+      paddingPercent = 0, // padding as percentage of image width (1-10)
+      paddingXPercent = paddingPercent,
+      paddingYPercent = paddingPercent,
       logoPosition = "bottom-right", // position: top-left, top-right, bottom-left, bottom-right, center
     } = options;
 
@@ -59,10 +61,9 @@ async function addLogoToImage(
       newLogoWidth * (logoOriginalHeight / logoOriginalWidth)
     );
     
-    // Calculate padding based on image width
-    const scaledPadding = Math.round(metadata.width * (paddingPercent / 100));
-    // Ensure minimum padding of 20px and maximum of 200px
-    const finalPadding = Math.max(20, Math.min(200, scaledPadding));
+    // Calculate padding based on image dimensions
+    const finalPaddingX = Math.max(0, Math.round(metadata.width * (paddingXPercent / 100)));
+    const finalPaddingY = Math.max(0, Math.round(metadata.height * (paddingYPercent / 100)));
 
     console.log(
       `Logo original dimensions: ${logoOriginalWidth}x${logoOriginalHeight}`
@@ -107,20 +108,20 @@ async function addLogoToImage(
     let top, left;
     switch (logoPosition) {
       case "top-left":
-        top = finalPadding;
-        left = finalPadding;
+        top = finalPaddingY;
+        left = finalPaddingX;
         break;
       case "top-right":
-        top = finalPadding;
-        left = metadata.width - logoWidth - finalPadding;
+        top = finalPaddingY;
+        left = metadata.width - logoWidth - finalPaddingX;
         break;
       case "bottom-left":
-        top = metadata.height - logoHeight - finalPadding;
-        left = finalPadding;
+        top = metadata.height - logoHeight - finalPaddingY;
+        left = finalPaddingX;
         break;
       case "bottom-right":
-        top = metadata.height - logoHeight - finalPadding;
-        left = metadata.width - logoWidth - finalPadding;
+        top = metadata.height - logoHeight - finalPaddingY;
+        left = metadata.width - logoWidth - finalPaddingX;
         break;
       case "center":
         top = Math.floor((metadata.height - logoHeight) / 2);
@@ -128,8 +129,8 @@ async function addLogoToImage(
         break;
       default:
         // Default to bottom-right
-        top = metadata.height - logoHeight - finalPadding;
-        left = metadata.width - logoWidth - finalPadding;
+        top = metadata.height - logoHeight - finalPaddingY;
+        left = metadata.width - logoWidth - finalPaddingX;
     }
 
     console.log(`Logo dimensions: ${logoWidth}x${logoHeight}`);
