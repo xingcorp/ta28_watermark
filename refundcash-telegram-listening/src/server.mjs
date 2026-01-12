@@ -139,9 +139,34 @@ if (!fs.existsSync(processedDir)) {
   fs.mkdirSync(processedDir, { recursive: true });
 }
 
-// Cleanup old job directories every hour
+// Configure automatic cleanup for processed media
+const processedMediaTtlMinutes = Math.max(
+  5,
+  Math.min(
+    24 * 60,
+    parseInt(process.env.PROCESSED_MEDIA_TTL_MINUTES || "60", 10)
+  )
+);
+const processedMediaCleanupIntervalMinutes = Math.max(
+  5,
+  Math.min(
+    processedMediaTtlMinutes,
+    parseInt(
+      process.env.PROCESSED_MEDIA_CLEANUP_INTERVAL_MINUTES || "10",
+      10
+    )
+  )
+);
+
+console.log(
+  `[CLEANUP] Processed media TTL: ${processedMediaTtlMinutes} minutes, cleanup interval: ${processedMediaCleanupIntervalMinutes} minutes`
+);
+
+// Cleanup old job directories periodically based on TTL
 setInterval(() => {
-  const cutoffTime = new Date(Date.now() - 4 * 60 * 60 * 1000);
+  const cutoffTime = new Date(
+    Date.now() - processedMediaTtlMinutes * 60 * 1000
+  );
   let cleanedCount = 0;
 
   try {
@@ -162,12 +187,17 @@ setInterval(() => {
     }
 
     if (cleanedCount > 0) {
-      console.log(`Cleaned up ${cleanedCount} old job directories`);
+      console.log(
+        `[CLEANUP] Removed ${cleanedCount} processed job directories older than ${processedMediaTtlMinutes} minutes`
+      );
     }
   } catch (error) {
-    console.warn("Error during cleanup:", error.message);
+    console.warn(
+      "[CLEANUP] Error during processed media cleanup:",
+      error.message
+    );
   }
-}, 60 * 60 * 1000);
+}, processedMediaCleanupIntervalMinutes * 60 * 1000);
 
 // Logo overlay function with configurable parameters and positioning
 async function addLogoToImage(
